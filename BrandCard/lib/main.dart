@@ -1,9 +1,8 @@
 // Importing necessary packages and libraries
+import 'dart:js';
 import 'dart:math';
 
-import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:galliant_card_app/cards.dart';
 import 'package:provider/provider.dart';
 
 // Entry point of the app
@@ -43,8 +42,7 @@ class MyAppState extends ChangeNotifier {
     BrandCard(type: 'brand', name: 'sense', description: 'feefoofuu'),
   ];
 
-  BrandCard current =
-      BrandCard(type: 'brand', name: 'inital', description: 'desc');
+  late BrandCard current ;
 
   BrandCard getRandomCard() {
     final availableCards =
@@ -55,12 +53,27 @@ class MyAppState extends ChangeNotifier {
       current = availableCards[randomIndex];
       return current;
     } else {
-      return BrandCard(
-          type: 'brand', name: 'no more available cards', description: 'n/a');
-    }
-  }
+      if(cards.isNotEmpty){
+        final lastCard = cards.removeAt(0);
+        favorites.add(lastCard);
+        return lastCard;
+      }
+      if(availableCards.isEmpty){
+        navToFavorites(context as BuildContext);
+        
+      }
+      return availableCards.first;
+      }
+      }
 
   var favorites = <BrandCard>[]; // Storing favorites
+
+  void navToFavorites(BuildContext context){
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context)=> FavoritesPage()),
+    );
+  }
 
   // Function to toggle the favorite status of a word pair
   void toggleFavorite() {
@@ -70,16 +83,16 @@ class MyAppState extends ChangeNotifier {
       favorites.add(current);
     }
     notifyListeners(); // Notifying listeners (UI) that the state has changed
+    }
   }
-}
 
-// The main home page widget
+
+// H O M E  P A G E / L A N D I N G  P A G E
 class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-// H O M E  P A G E
 class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
 
@@ -88,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = GeneratorPage();
+        page = GeneratorPage(appState: MyAppState());
         break;
       case 1:
         page = FavoritesPage();
@@ -145,12 +158,18 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class GeneratorPage extends StatefulWidget {
+ 
+  final MyAppState appState;
+
+  GeneratorPage({required this.appState});
+
   @override
-  _GeneratorPageState createState() => _GeneratorPageState();
+  _GeneratorPageState createState() => _GeneratorPageState(appState);
 }
 
 class _GeneratorPageState extends State<GeneratorPage> {
-  late MyAppState appState;
+  late final MyAppState appState;
+  _GeneratorPageState(this.appState);
   late List<BrandCard> cards;
   Iterator<BrandCard> iterator = <BrandCard>[].iterator;
   late BrandCard card1;
@@ -160,7 +179,6 @@ class _GeneratorPageState extends State<GeneratorPage> {
   @override
   void initState() {
     super.initState();
-    appState = context.read<MyAppState>();
     iterator = appState.cards.iterator;
     cards = appState.cards;
     card1 = appState.getRandomCard();
@@ -168,13 +186,19 @@ class _GeneratorPageState extends State<GeneratorPage> {
   }
 
 
-  @override
   Widget buildError(BuildContext context) {
     throw UnimplementedError();
   }
 
   @override
   Widget build(BuildContext context) {
+    bool finalView = false;
+
+    if (finalView == true){
+      return Center(
+        child: CardZone(card: cards[0]),
+      );
+    }
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -187,18 +211,16 @@ class _GeneratorPageState extends State<GeneratorPage> {
                     chooseCard1 = true;
                     if (chooseCard1) {
                       cards.remove(card2);
-                  
                     }
-                    
                     card2 = appState.getRandomCard();
-                    
+                    while( card1 == card2 ){
+                    card2 = appState.getRandomCard();
+                    }
               //TERMINAL LOG      
                     print(cards.length);
                     for (var card in cards) {
                       print('${card.name}');
                     }
-
-
                   });
                 },
                 child: CardZone(
@@ -216,6 +238,13 @@ class _GeneratorPageState extends State<GeneratorPage> {
                       cards.remove(card1);
                     }
                     card1 = appState.getRandomCard();
+                    while(card2 == card1){
+                      card1 = appState.getRandomCard();
+                    }
+                    List<BrandCard> availableCards = appState.cards;
+                    if(cards.length == 2){
+                      finalView = true;
+                    }
                   });
                 },
                 child: CardZone(
