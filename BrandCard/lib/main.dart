@@ -46,18 +46,18 @@ class MyAppState extends ChangeNotifier {
   BrandCard current =
       BrandCard(type: 'brand', name: 'inital', description: 'desc');
 
-  void getRandomCard() {
+  BrandCard getRandomCard() {
     final availableCards =
         cards.where((card) => !favorites.contains(card)).toList();
 
     if (availableCards.isNotEmpty) {
       final randomIndex = Random().nextInt(availableCards.length);
       current = availableCards[randomIndex];
+      return current;
     } else {
-      current = BrandCard(
+      return BrandCard(
           type: 'brand', name: 'no more available cards', description: 'n/a');
     }
-    notifyListeners();
   }
 
   var favorites = <BrandCard>[]; // Storing favorites
@@ -155,25 +155,18 @@ class _GeneratorPageState extends State<GeneratorPage> {
   Iterator<BrandCard> iterator = <BrandCard>[].iterator;
   late BrandCard card1;
   late BrandCard card2;
-  bool showCard1 = true;
-
+  bool chooseCard1 = true;
+  bool chooseCard2 = true;
   @override
   void initState() {
     super.initState();
     appState = context.read<MyAppState>();
     iterator = appState.cards.iterator;
     cards = appState.cards;
-    card1 = generateRandomCard();
-    card2 = generateRandomCard();
+    card1 = appState.getRandomCard();
+    card2 = appState.getRandomCard();
   }
 
-  // T R A C K  C A R D  I N  V I E W
-
-  // R A N D O M I Z E R
-  BrandCard generateRandomCard() {
-    final randomCard = cards[Random().nextInt(cards.length)];
-    return randomCard;
-  }
 
   @override
   Widget buildError(BuildContext context) {
@@ -191,15 +184,21 @@ class _GeneratorPageState extends State<GeneratorPage> {
               child: GestureDetector(
                 onTap: () {
                   setState(() {
-                    showCard1 = true;
-                    if (showCard1) {
-                      cards.remove(card1);
+                    chooseCard1 = true;
+                    if (chooseCard1) {
+                      cards.remove(card2);
+                  
                     }
-                    generateRandomCard();
+                    
+                    card2 = appState.getRandomCard();
+                    
+              //TERMINAL LOG      
                     print(cards.length);
                     for (var card in cards) {
                       print('${card.name}');
                     }
+
+
                   });
                 },
                 child: CardZone(
@@ -212,8 +211,11 @@ class _GeneratorPageState extends State<GeneratorPage> {
               child: GestureDetector(
                 onTap: () {
                   setState(() {
-                    showCard1 = false;
-                    generateRandomCard();
+                    chooseCard2 = true;
+                    if(chooseCard2){
+                      cards.remove(card1);
+                    }
+                    card1 = appState.getRandomCard();
                   });
                 },
                 child: CardZone(
