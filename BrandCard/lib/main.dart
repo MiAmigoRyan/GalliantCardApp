@@ -183,6 +183,24 @@ class GeneratorPage extends StatefulWidget {
 
 class _GeneratorPageState extends State<GeneratorPage> {
   late MyAppState appState;
+    List<BrandCard> cards = [
+    BrandCard(type: 'brand', name: 'adventure', description: 'feefoofuu'),
+    BrandCard(type: 'brand', name: 'leader', description: 'feefoofuu'),
+    BrandCard(type: 'brand', name: 'teacher', description: 'feefoofuu'),
+    BrandCard(type: 'brand', name: 'artist', description: 'feefoofuu'),
+    BrandCard(type: 'brand', name: 'modernist', description: 'feefoofuu'),
+    BrandCard(type: 'brand', name: 'sense', description: 'feefoofuu'),
+  ];
+
+  Iterator<BrandCard> iterator = <BrandCard>[].iterator;
+
+  @override
+  void initState(){
+    super.initState();
+    appState = context.read<MyAppState>();
+    cards = appState.cards;
+    iterator = cards.iterator;
+  }
 
   BrandCard card1 = BrandCard(
     type: 'initial',
@@ -194,6 +212,9 @@ class _GeneratorPageState extends State<GeneratorPage> {
     name: 'initial',
     description: 'initial',
   );
+
+
+
   bool showCard1 = true; // To track which card to show
 
   void generateRandomCard1() {
@@ -218,7 +239,13 @@ class _GeneratorPageState extends State<GeneratorPage> {
                 onTap: () {
                   setState(() {
                     showCard1 = true;
+                    if (showCard1 = true){
+                      cards.remove(card1);
+                    }
                     generateRandomCard2();
+                    print(cards.length);
+                    for (var card in cards){
+                    print('${card.name}');}
                   });
                 },
                 child: CardZone(
