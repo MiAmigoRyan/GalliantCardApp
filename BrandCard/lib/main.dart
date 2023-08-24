@@ -179,8 +179,7 @@ class FavoritesPage extends StatelessWidget {
 class GeneratorPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var appState =
-        context.watch<MyAppState>(); // Accessing app state using context
+    var appState = context.watch<MyAppState>();
 
     BrandCard randomCard1 = appState.cards[
         Random().nextInt(appState.cards.length)]; // Get the first random card
@@ -191,55 +190,39 @@ class GeneratorPage extends StatelessWidget {
     } while (
         randomCard2 == randomCard1); // Make sure the second card is distinct
 
-    IconData icon;
-    if (appState.favorites.contains(randomCard1)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border;
-    }
-
-    // Building the UI using Center and Column widgets
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          BrandCard(
-            type: randomCard1.type,
-            name: randomCard1.name,
-            description: randomCard1.description,
-          ), // Displaying the BigCard widget with the current displayed card
-          SizedBox(height: 10),
-          BrandCard(
-            type: randomCard2.type,
-            name: randomCard2.name,
-            description: randomCard2.description,
-          ), 
-          SizedBox(height: 10),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  appState
-                      .toggleFavorite(); // Toggling the favorite status of the current card
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Row(
+          children: [
+            Container(
+              height: MediaQuery.of(context).size.height * 0.3, // Set the fixed height
+              child: CardZone(
+                card: randomCard1,
+                likeButtonCallback: () {
+                  appState.toggleFavorite();
+                  appState.getRandomCard();
                 },
-                icon: Icon(icon),
-                label: Text('Like'),
               ),
-              SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  appState.getRandomCard(); // Generating the next random card
+            ),
+            SizedBox(width: 10),
+            Container(
+              height: MediaQuery.of(context).size.height * 0.3, // Set the fixed height
+              child: CardZone(
+                card: randomCard2,
+                likeButtonCallback: () {
+                  appState.toggleFavorite();
+                  appState.getRandomCard();
                 },
-                child: Text('Next'),
               ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
 }
+
 
 // Widget to display a styled card with a word pair
 class BigCard extends StatelessWidget {
@@ -287,12 +270,41 @@ class BrandCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Card(
+    return Container(
+      height: 150, // Set a fixed height for the card container
+      child: Card(
         color: theme.colorScheme.primary,
         child: Padding(
           padding: const EdgeInsets.all(20),
-          child: Text('Name: $name' 'Description: $description'),
-        ));
+          child: Align(
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  'Name: $name',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Description: $description',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -316,5 +328,32 @@ class AllCards extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+class CardZone extends StatelessWidget {
+  final BrandCard card;
+  final VoidCallback likeButtonCallback;
+
+  CardZone({
+    required this.card,
+    required this.likeButtonCallback,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+        color: Theme.of(context).colorScheme.secondary,
+        child: Column(
+          children: [
+            card,
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              ElevatedButton.icon(
+                onPressed: likeButtonCallback,
+                icon: Icon(Icons.favorite),
+                label: Text('this is me'),
+              )
+            ])
+          ],
+        ));
   }
 }
