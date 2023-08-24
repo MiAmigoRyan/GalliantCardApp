@@ -176,44 +176,68 @@ class FavoritesPage extends StatelessWidget {
 }
 
 // Widget to display the generated word pairs
-class GeneratorPage extends StatelessWidget {
+class GeneratorPage extends StatefulWidget {
+  @override
+  _GeneratorPageState createState() => _GeneratorPageState();
+}
+
+class _GeneratorPageState extends State<GeneratorPage> {
+  late MyAppState appState;
+
+  BrandCard card1 = BrandCard(
+    type: 'initial',
+    name: 'initial',
+    description: 'initial',
+  );
+  BrandCard card2 = BrandCard(
+    type: 'initial',
+    name: 'initial',
+    description: 'initial',
+  );
+  bool showCard1 = true; // To track which card to show
+
+  void generateRandomCard1() {
+    card1 = appState.cards[Random().nextInt(appState.cards.length)];
+  }
+  void generateRandomCard2() {
+    card2 = appState.cards[Random().nextInt(appState.cards.length)];
+    }  
+
+
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
-    BrandCard randomCard1 = appState.cards[
-        Random().nextInt(appState.cards.length)]; // Get the first random card
-    BrandCard randomCard2;
-    do {
-      randomCard2 = appState.cards[Random()
-          .nextInt(appState.cards.length)]; // Get the second random card
-    } while (
-        randomCard2 == randomCard1); // Make sure the second card is distinct
+    appState = context.watch<MyAppState>();
 
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Row(
           children: [
-            Container(
-              height: MediaQuery.of(context).size.height * 0.3, // Set the fixed height
-              child: CardZone(
-                card: randomCard1,
-                likeButtonCallback: () {
-                  appState.toggleFavorite();
-                  appState.getRandomCard();
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    showCard1 = true;
+                    generateRandomCard2();
+                  });
                 },
+                child: CardZone(
+                  card: card1,
+                ),
               ),
             ),
             SizedBox(width: 10),
-            Container(
-              height: MediaQuery.of(context).size.height * 0.3, // Set the fixed height
-              child: CardZone(
-                card: randomCard2,
-                likeButtonCallback: () {
-                  appState.toggleFavorite();
-                  appState.getRandomCard();
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    showCard1 = false;
+                    generateRandomCard1();
+                  });
                 },
+                child: CardZone(
+                  card: card2,
+                ),
               ),
             ),
           ],
@@ -222,6 +246,8 @@ class GeneratorPage extends StatelessWidget {
     );
   }
 }
+
+
 
 
 // Widget to display a styled card with a word pair
@@ -333,11 +359,11 @@ class AllCards extends StatelessWidget {
 
 class CardZone extends StatelessWidget {
   final BrandCard card;
-  final VoidCallback likeButtonCallback;
+  // final VoidCallback likeButtonCallback;
 
   CardZone({
     required this.card,
-    required this.likeButtonCallback,
+    // required this.likeButtonCallback,
   });
   @override
   Widget build(BuildContext context) {
@@ -346,13 +372,13 @@ class CardZone extends StatelessWidget {
         child: Column(
           children: [
             card,
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              ElevatedButton.icon(
-                onPressed: likeButtonCallback,
-                icon: Icon(Icons.favorite),
-                label: Text('this is me'),
-              )
-            ])
+            // Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              // ElevatedButton.icon(
+                // onPressed: likeButtonCallback,
+                // icon: Icon(Icons.favorite),
+                // label: Text('this is me'),
+              // )
+            // ])
           ],
         ));
   }
