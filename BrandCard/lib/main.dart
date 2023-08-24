@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
+import 'package:galliant_card_app/cards.dart';
 import 'package:provider/provider.dart';
 
 // Entry point of the app
@@ -22,8 +23,8 @@ class MyApp extends StatelessWidget {
         title: 'Brand Cards',
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color.fromARGB(255, 28, 88, 137)),
+          colorScheme:
+              ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 81, 137, 28)),
         ),
         home: MyHomePage(), // Setting MyHomePage as the home screen of the app
       ),
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// A class to manage the state of the app
+// S T A T E  M A N A G M E N T
 class MyAppState extends ChangeNotifier {
   List<BrandCard> cards = [
     BrandCard(type: 'brand', name: 'adventure', description: 'feefoofuu'),
@@ -57,14 +58,7 @@ class MyAppState extends ChangeNotifier {
           type: 'brand', name: 'no more available cards', description: 'n/a');
     }
     notifyListeners();
-
-    // final randomIndex = Random().nextInt(cards.length);
-    // current = cards[randomIndex];
   }
-  // Function to generate the next random word pair
-  // void getNext() {
-  //   current = BrandCard.cards.random();
-  //   notifyListeners(); // Notifying listeners (UI) that the state has changed
 
   var favorites = <BrandCard>[]; // Storing favorites
 
@@ -85,6 +79,7 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+// H O M E  P A G E
 class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
 
@@ -98,17 +93,18 @@ class _MyHomePageState extends State<MyHomePage> {
       case 1:
         page = FavoritesPage();
         break;
-      case 2:
-        page = AllCards();
-        break;
+      // case 2:
+      //   page = AllCards();
+      //   break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
+
+// N A V   B A R
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
         body: Row(
           children: [
-            // NavigationRail widget for navigation
             SafeArea(
               child: NavigationRail(
                 extended: constraints.maxWidth >= 600,
@@ -122,7 +118,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     label: Text('Favorites'),
                   ),
                   NavigationRailDestination(
-                      icon: Icon(Icons.deck), label: Text('All Cards')),
+                      icon: Icon(Icons.rectangle_outlined),
+                      label: Text('All Cards')),
                 ],
                 selectedIndex: selectedIndex,
                 onDestinationSelected: (value) {
@@ -147,7 +144,91 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-//Favorites Widget
+class GeneratorPage extends StatefulWidget {
+  @override
+  _GeneratorPageState createState() => _GeneratorPageState();
+}
+
+class _GeneratorPageState extends State<GeneratorPage> {
+  late MyAppState appState;
+  late List<BrandCard> cards;
+  Iterator<BrandCard> iterator = <BrandCard>[].iterator;
+  late BrandCard card1;
+  late BrandCard card2;
+  bool showCard1 = true;
+
+  @override
+  void initState() {
+    super.initState();
+    appState = context.read<MyAppState>();
+    iterator = appState.cards.iterator;
+    cards = appState.cards;
+    card1 = generateRandomCard();
+    card2 = generateRandomCard();
+  }
+
+  // T R A C K  C A R D  I N  V I E W
+
+  // R A N D O M I Z E R
+  BrandCard generateRandomCard() {
+    final randomCard = cards[Random().nextInt(cards.length)];
+    return randomCard;
+  }
+
+  @override
+  Widget buildError(BuildContext context) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    showCard1 = true;
+                    if (showCard1) {
+                      cards.remove(card1);
+                    }
+                    generateRandomCard();
+                    print(cards.length);
+                    for (var card in cards) {
+                      print('${card.name}');
+                    }
+                  });
+                },
+                child: CardZone(
+                  card: card1,
+                ),
+              ),
+            ),
+            SizedBox(width: 10),
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    showCard1 = false;
+                    generateRandomCard();
+                  });
+                },
+                child: CardZone(
+                  card: card2,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// F A V O R I T E S  P A G E
 class FavoritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -175,138 +256,18 @@ class FavoritesPage extends StatelessWidget {
   }
 }
 
-// Widget to display the generated word pairs
-class GeneratorPage extends StatefulWidget {
-  @override
-  _GeneratorPageState createState() => _GeneratorPageState();
-}
+// T O  D O :  c r e a t e  p a g e  f o r  a l l  b r a n d  t y p e s
+// Class AllCardsPage extends StatelessWidget {
+//   var card = Cards;
 
-class _GeneratorPageState extends State<GeneratorPage> {
-  late MyAppState appState;
-    List<BrandCard> cards = [
-    BrandCard(type: 'brand', name: 'adventure', description: 'feefoofuu'),
-    BrandCard(type: 'brand', name: 'leader', description: 'feefoofuu'),
-    BrandCard(type: 'brand', name: 'teacher', description: 'feefoofuu'),
-    BrandCard(type: 'brand', name: 'artist', description: 'feefoofuu'),
-    BrandCard(type: 'brand', name: 'modernist', description: 'feefoofuu'),
-    BrandCard(type: 'brand', name: 'sense', description: 'feefoofuu'),
-  ];
+//   @override
+//   Widget build(BuildContext context){
+//     return Center (
+//       child: Text('${card.name}'),
+//     );
+//   }
 
-  Iterator<BrandCard> iterator = <BrandCard>[].iterator;
-
-  @override
-  void initState(){
-    super.initState();
-    appState = context.read<MyAppState>();
-    cards = appState.cards;
-    iterator = cards.iterator;
-  }
-
-  BrandCard card1 = BrandCard(
-    type: 'initial',
-    name: 'initial',
-    description: 'initial',
-  );
-  BrandCard card2 = BrandCard(
-    type: 'initial',
-    name: 'initial',
-    description: 'initial',
-  );
-
-
-
-  bool showCard1 = true; // To track which card to show
-
-  void generateRandomCard1() {
-    card1 = appState.cards[Random().nextInt(appState.cards.length)];
-  }
-  void generateRandomCard2() {
-    card2 = appState.cards[Random().nextInt(appState.cards.length)];
-    }  
-
-
-  @override
-  Widget build(BuildContext context) {
-    appState = context.watch<MyAppState>();
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Row(
-          children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    showCard1 = true;
-                    if (showCard1 = true){
-                      cards.remove(card1);
-                    }
-                    generateRandomCard2();
-                    print(cards.length);
-                    for (var card in cards){
-                    print('${card.name}');}
-                  });
-                },
-                child: CardZone(
-                  card: card1,
-                ),
-              ),
-            ),
-            SizedBox(width: 10),
-            Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    showCard1 = false;
-                    generateRandomCard1();
-                  });
-                },
-                child: CardZone(
-                  card: card2,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
-
-
-// Widget to display a styled card with a word pair
-class BigCard extends StatelessWidget {
-  const BigCard({
-    super.key,
-    required this.pair,
-  });
-
-  final WordPair pair;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
-    );
-
-    return Card(
-      color: theme.colorScheme.primary,
-      child: Padding(
-        padding: const EdgeInsets.all(42.0),
-        child: Text(
-          pair.asUpperCase, // Displaying the uppercase version of the word pair
-          style: style,
-          semanticsLabel: "${pair.first} ${pair.second}", // Accessibility label
-        ),
-      ),
-    );
-  }
-}
-
+// B R A N D   C A R D
 class BrandCard extends StatelessWidget {
   final String type;
   final String name;
@@ -323,7 +284,7 @@ class BrandCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
+    return SizedBox(
       height: 150, // Set a fixed height for the card container
       child: Card(
         color: theme.colorScheme.primary,
@@ -361,51 +322,19 @@ class BrandCard extends StatelessWidget {
   }
 }
 
-class AllCards extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('ALL CARDS'),
-      ),
-      body: ListView.builder(
-        itemCount: appState.cards.length,
-        itemBuilder: (context, index) {
-          var card = appState.cards[index];
-          return ListTile(
-            title: Text(card.name),
-            subtitle: Text(card.description),
-          );
-        },
-      ),
-    );
-  }
-}
-
 class CardZone extends StatelessWidget {
   final BrandCard card;
-  // final VoidCallback likeButtonCallback;
 
   CardZone({
     required this.card,
-    // required this.likeButtonCallback,
   });
   @override
   Widget build(BuildContext context) {
     return Card(
-        color: Theme.of(context).colorScheme.secondary,
+        color: Theme.of(context).colorScheme.inversePrimary,
         child: Column(
           children: [
             card,
-            // Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              // ElevatedButton.icon(
-                // onPressed: likeButtonCallback,
-                // icon: Icon(Icons.favorite),
-                // label: Text('this is me'),
-              // )
-            // ])
           ],
         ));
   }
