@@ -1,16 +1,8 @@
-# sandbox
+# Brand Card Game
 
-A new Flutter project.
+A game for choosing your brand identity
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 
+-Users are shown two cards, one card is chosen and stays on the screen, the not chosen card is removed from the 'deck' and another random card is shown in it's place. This continues until there are no cards remaiing.
+-Users can repeat this up to 5 times
+-Users have to share their email to engage with the exercise
