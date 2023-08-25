@@ -34,12 +34,23 @@ class MyApp extends StatelessWidget {
 // S T A T E  M A N A G M E N T
 class MyAppState extends ChangeNotifier {
   List<BrandCard> cards = [
-    BrandCard(type: 'brand', name: 'adventure', description: 'feefoofuu'),
-    BrandCard(type: 'brand', name: 'leader', description: 'feefoofuu'),
-    BrandCard(type: 'brand', name: 'teacher', description: 'feefoofuu'),
-    BrandCard(type: 'brand', name: 'artist', description: 'feefoofuu'),
-    BrandCard(type: 'brand', name: 'modernist', description: 'feefoofuu'),
-    BrandCard(type: 'brand', name: 'sense', description: 'feefoofuu'),
+    BrandCard(type: 'brand', name: 'DEFENDER', description: 'Knight, Superhero, Warrior'),
+    BrandCard(type: 'brand', name: 'EXPLORER', description: 'Seeker, Wanderer'),
+    BrandCard(type: 'brand', name: 'THRILL SEEKER', description: 'Gambler, Swashbuckler, Adventurer'),
+    BrandCard(type: 'brand', name: 'ACHIEVER', description: 'Athlete, Hot Shot, Strongman'),
+    BrandCard(type: 'brand', name: 'TRADITIONALIST', description: 'Conservative, Old School, Miser'),
+    BrandCard(type: 'brand', name: 'NURTURER', description: 'Mom, Mother Earth, Healer'),
+    BrandCard(type: 'brand', name: 'CONNECTOR', description: 'Networker, Politician, Talker'),
+    BrandCard(type: 'brand', name: 'ARTIST', description: 'Creative, Creator, Crafstman'),
+    BrandCard(type: 'brand', name: 'PHILOSOPHER', description: 'Sage, Prophet, Guru'),
+    BrandCard(type: 'brand', name: 'DREAMER', description: 'Magician, Sorcerer, Wizard'),
+    BrandCard(type: 'brand', name: 'MOTIVATOR', description: 'Mentor, Preacher, Promoter'),
+    BrandCard(type: 'brand', name: 'RULER', description: 'King, Leader, Father'),
+    BrandCard(type: 'brand', name: 'MAVERICK', description: 'Rebel, Outlaw, Rogue'),
+    BrandCard(type: 'brand', name: 'EVERYONE', description: 'Average Joe, Girl Next Door'),
+    BrandCard(type: 'brand', name: 'ENTERTAINER', description: 'Clown, Jester, Preformer'),
+    BrandCard(type: 'brand', name: 'VILLIAN', description: 'Bad Guy, Monster, Vampire'),
+    BrandCard(type: 'brand', name: 'Intellectual', description: 'Sage, Genius, Expert'),
   ];
 
   late BrandCard current ;
@@ -174,8 +185,12 @@ class _GeneratorPageState extends State<GeneratorPage> {
   Iterator<BrandCard> iterator = <BrandCard>[].iterator;
   late BrandCard card1;
   late BrandCard card2;
+  late BrandCard winningCard;
   bool chooseCard1 = true;
   bool chooseCard2 = true;
+  bool finalView = false;
+
+  
   @override
   void initState() {
     super.initState();
@@ -192,13 +207,15 @@ class _GeneratorPageState extends State<GeneratorPage> {
 
   @override
   Widget build(BuildContext context) {
-    bool finalView = false;
-
+    if(cards.length == 2){
+      finalView==true;
+    }
     if (finalView == true){
       return Center(
-        child: CardZone(card: cards[0]),
+        child: CardZone(card: winningCard ),
       );
-    }
+    } else{
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -211,10 +228,16 @@ class _GeneratorPageState extends State<GeneratorPage> {
                     chooseCard1 = true;
                     if (chooseCard1) {
                       cards.remove(card2);
+                      cards.remove(card1);
                     }
                     card2 = appState.getRandomCard();
                     while( card1 == card2 ){
                     card2 = appState.getRandomCard();
+                    }
+                    List<BrandCard> availableCards = appState.cards;
+                    if(cards.length == 2){
+                      finalView = true;
+                      winningCard = card1;
                     }
               //TERMINAL LOG      
                     print(cards.length);
@@ -244,6 +267,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
                     List<BrandCard> availableCards = appState.cards;
                     if(cards.length == 2){
                       finalView = true;
+                      winningCard = card2;
                     }
                   });
                 },
@@ -256,6 +280,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
         ),
       ),
     );
+    }
   }
 }
 
