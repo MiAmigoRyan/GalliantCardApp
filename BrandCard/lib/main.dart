@@ -3,7 +3,6 @@ import 'dart:js';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 // Entry point of the app
@@ -97,6 +96,7 @@ class MyAppState extends ChangeNotifier {
   ];
 
   late BrandCard current;
+  List<BrandCard> favorites = [];
 
   BrandCard getRandomCard() {
     final availableCards =
@@ -119,16 +119,16 @@ class MyAppState extends ChangeNotifier {
     }
   }
 
-  var favorites = <BrandCard>[]; // Storing favorites
 
   void navToFavorites(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => FavoritesPage()),
+      MaterialPageRoute(builder: (context) => FavoritesPage(appState: MyAppState(),)),
     );
   }
 
   // Function to toggle the favorite status of a word pair
+
   void toggleFavorite() {
     if (favorites.contains(current)) {
       favorites.remove(current);
@@ -147,19 +147,20 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
+  final MyAppState  myAppState = MyAppState();
 
   @override
   Widget build(BuildContext context) {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = GeneratorPage(appState: MyAppState());
+        page = GeneratorPage(appState: myAppState);
         break;
       case 1:
-        page = FavoritesPage();
+        page = FavoritesPage(appState: myAppState, );
         break;
       case 2:
-        page = AllCardsPage(appState: MyAppState(),deck: [],);
+        page = AllCardsPage(appState: myAppState, deck: myAppState.cards);
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -225,10 +226,11 @@ class _GeneratorPageState extends State<GeneratorPage> {
   Iterator<BrandCard> iterator = <BrandCard>[].iterator;
   late BrandCard card1;
   late BrandCard card2;
-  late BrandCard winningCard;
+  late BrandCard winningCard = card1;
   bool chooseCard1 = true;
   bool chooseCard2 = true;
   bool finalView = false;
+
 
   @override
   void initState() {
@@ -245,10 +247,9 @@ class _GeneratorPageState extends State<GeneratorPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (cards.length == 2) {
-      finalView == true;
-    }
-    if (finalView == true) {
+    print(cards.length);
+    if (cards.length <= 1) {
+      finalView = true;
       return Center(
         child: CardZone(card: winningCard),
       );
@@ -263,10 +264,11 @@ class _GeneratorPageState extends State<GeneratorPage> {
                   onTap: () {
                     setState(() {
                       // C A R D   C H O I C E
+                      card1.isClicked = false;
                       chooseCard1 = true;
                       if (chooseCard1) {
                         // R E M O V E   C A R D S   F R O M   D E C K
-                        cards.remove(card2);
+                        card1.isClicked = true;
                         cards.remove(card1);
                       }
                       // G E N E R A T E   N E W   C A R D
@@ -275,17 +277,11 @@ class _GeneratorPageState extends State<GeneratorPage> {
                       while (card1 == card2) {
                         card2 = appState.getRandomCard();
                       }
-                      card1.isClicked = true;
                       // S H O W   W I N N I N G   C A R D
-                      if (cards.length == 1) {
-                        finalView = true;
+                      if (cards.length <= 1) {
                         winningCard = card1;
                       }
-                      //############## LOG
-                      print(cards.length);
-                      for (var card in cards) {
-                        print('${card.name}');
-                      }
+                      
                     });
                   },
                   child: CardZone(
@@ -298,17 +294,17 @@ class _GeneratorPageState extends State<GeneratorPage> {
                 child: GestureDetector(
                   onTap: () {
                     setState(() {
+                      card2.isClicked = false;
                       chooseCard2 = true;
                       if (chooseCard2) {
-                        cards.remove(card1);
+                        card2.isClicked = true;
+                        cards.remove(card2);
                       }
                       card1 = appState.getRandomCard();
                       while (card2 == card1) {
                         card1 = appState.getRandomCard();
                       }
-                      card2.isClicked = true;
-                      if (cards.length == 1) {
-                        finalView = true;
+                      if (cards.length <= 1) {
                         winningCard = card2;
                       }
                     });
@@ -326,13 +322,22 @@ class _GeneratorPageState extends State<GeneratorPage> {
   }
 }
 
-// F A V O R I T E S  P A G E
-class FavoritesPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
 
-    var clickedCards = appState.cards.where((card) => card.isClicked).toList();
+
+// F A V O R I T E S  P A G E
+
+class FavoritesPage extends StatefulWidget{
+  final MyAppState appState;
+  FavoritesPage({required this.appState});
+  @override
+  _FavoritesPageState createState() => _FavoritesPageState();
+}
+class _FavoritesPageState extends State<FavoritesPage> {
+ @override
+  Widget build(BuildContext context) {
+    var clickedCards = widget.appState.cards.where((card) => card.isClicked).toList();
+    print(clickedCards.length);
+    print(clickedCards);
 
     if (clickedCards.isEmpty) {
       return Center(
@@ -343,26 +348,28 @@ class FavoritesPage extends StatelessWidget {
     return ListView.builder(
       itemCount: clickedCards.length,
       itemBuilder: (context, index) {
-        var card = clickedCards[index];
         return ListTile(
           leading: Icon(Icons.favorite),
-          title: Text(card.name),
+          title: Text(clickedCards[index].name),
         );
       },
     );
   }
 }
 
-// T O  D O :  c r e a t e  p a g e  f o r  a l l  b r a n d  t y p e s
+
+
+// A L L   C A R D S
+
 class AllCardsPage extends StatelessWidget {
   final MyAppState appState;
   final List<BrandCard> deck;
 
   const AllCardsPage({super.key, required this.appState, required this.deck});
   
-  
   @override
   Widget build(BuildContext context) {
+    print(deck.length);
     return Scaffold(
         appBar: AppBar(
           title: Text('CARDS'),
